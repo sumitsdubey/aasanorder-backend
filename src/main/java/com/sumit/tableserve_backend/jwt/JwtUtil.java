@@ -1,5 +1,6 @@
 package com.sumit.tableserve_backend.jwt;
 
+import com.sumit.tableserve_backend.sevices.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -14,11 +15,16 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    private final UserService userService;
     @Value("${jwt.secret}")
     private String jwtSecret;
 
     @Value("${jwt.expiration}")
     private long jwtExpiration;
+
+    public JwtUtil(UserService userService) {
+        this.userService = userService;
+    }
 
     private Key getSignKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
