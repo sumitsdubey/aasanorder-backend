@@ -1,13 +1,19 @@
 package com.sumit.tableserve_backend.sevices;
 
+import com.mongodb.client.result.UpdateResult;
 import com.sumit.tableserve_backend.dto.ShopRequest;
 import com.sumit.tableserve_backend.entities.Shop;
 import com.sumit.tableserve_backend.enus.Status;
 import com.sumit.tableserve_backend.repositories.ShopRepositoy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -15,6 +21,8 @@ public class ShopService {
 
     @Autowired
     private ShopRepositoy shopRepositoy;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     public Shop createShop(ShopRequest requestShop, String username) {
         try{
@@ -67,6 +75,17 @@ public class ShopService {
             }
             return null;
         } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateShopByCol(String col, Object value, String username) {
+        try{
+            Query query = new Query(Criteria.where("username").is(username));
+            Update update = new Update().set(col, value);
+            mongoTemplate.updateFirst(query, update, Shop.class);
+        }
+        catch (Exception e){
             throw new RuntimeException(e);
         }
     }

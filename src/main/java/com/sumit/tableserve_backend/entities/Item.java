@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document("items")
 public class Item {
-
     @Id
     private String itemId;
     @NonNull
