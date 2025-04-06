@@ -23,20 +23,12 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     //METHOD TO SAVE NEW USER
-    public ApiResponseModel saveUser(RegisterRequest registerRequest) {
+    public User saveUser(RegisterRequest registerRequest) throws IllegalArgumentException{
 
         try{
-            if(registerRequest.getName()==null
-                    || registerRequest.getEmail()==null
-                    || registerRequest.getPhone()==null
-                    || registerRequest.getAddress()==null
-                    || registerRequest.getPassword()==null) {
-                return new ApiResponseModel(null, "[ name , email, phone, address, password -- are required]", 401, false);
-            }
-
             User exist = userRepository.findByEmail(registerRequest.getEmail());
             if(exist != null) {
-                return new ApiResponseModel(null,"User Already exists", 401, false);
+                throw new IllegalArgumentException("User Already Exist");
             }
 
             User user = new User().builder()
@@ -51,10 +43,10 @@ public class UserService {
                     .createdAt(LocalDateTime.now())
                     .build();
             User saved = userRepository.save(user);
-            return new ApiResponseModel(saved, "User Registration Success", 201, true);
+            return saved;
         }
         catch(Exception e){
-            return new ApiResponseModel(null, "Internal Server Error", 501, false);
+            throw new IllegalArgumentException("Internal Server Error");
         }
     }
 

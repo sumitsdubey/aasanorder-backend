@@ -37,10 +37,20 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
 
         try{
-            ApiResponseModel response = userService.saveUser(request);
-            return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getCode()));
+            if(request.getName()==null
+                    || request.getEmail()==null
+                    || request.getPhone()==null
+                    || request.getAddress()==null
+                    || request.getPassword()==null) {
+                return new ResponseEntity<>( new ApiResponseModel(null, "[ name , email, phone, address, password -- are required]", 401, false), HttpStatus.BAD_REQUEST);
+            }
+            User response = userService.saveUser(request);
+            if(response!=null) {
+                return new ResponseEntity<>(new ApiResponseModel(response, "Registration Success", 201, true), HttpStatus.CREATED);
+            }
+            return new ResponseEntity<>(new ApiResponseModel(null, "Registration Failed", 501, false), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponseModel(null, e.getMessage(), 401, false), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponseModel(null, e.getMessage(), 501, false), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -55,7 +65,7 @@ public class AuthController {
 
             if(response != null) {
                 String jwt = jwtUtil.generateToken(response.getUsername());
-                return new ResponseEntity<>(new ApiResponseModel(jwt, "User successfully logged in", HttpStatus.OK.value(), true), HttpStatus.OK);
+                return new ResponseEntity<>(new ApiResponseModel(Map.of("token", jwt), "User successfully logged in", HttpStatus.OK.value(), true), HttpStatus.OK);
             }
             return new ResponseEntity<>(new ApiResponseModel(null, "Invalid Credientials", 404, false), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
