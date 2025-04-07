@@ -24,7 +24,7 @@ public class ShopService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public Shop createShop(ShopRequest requestShop, String username) {
+    public Shop createShop(ShopRequest requestShop, String username, String fileUrl) {
         try{
             Shop shop = new Shop().builder()
                     .username(username)
@@ -34,7 +34,7 @@ public class ShopService {
                     .idenity(requestShop.getIdenity())
                     .phone(requestShop.getPhone())
                     .email(requestShop.getEmail())
-                    .image(requestShop.getImage())
+                    .image(fileUrl)
                     .description(requestShop.getDescription())
                     .status(Status.PENDING)
                     .createdAt(LocalDateTime.now())
@@ -68,7 +68,7 @@ public class ShopService {
                 shop.setIdenity(requestShop.getIdenity());
                 shop.setPhone(requestShop.getPhone());
                 shop.setEmail(requestShop.getEmail());
-                shop.setImage(requestShop.getImage());
+//                shop.setImage(requestShop.getImage());
                 shop.setDescription(requestShop.getDescription());
                 shop.setUpdatedAt(LocalDateTime.now());
                 return shopRepositoy.save(shop);

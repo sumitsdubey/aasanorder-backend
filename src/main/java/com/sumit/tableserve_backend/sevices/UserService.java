@@ -9,6 +9,7 @@ import com.sumit.tableserve_backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     //METHOD TO SAVE NEW USER
     public User saveUser(RegisterRequest registerRequest) throws IllegalArgumentException{
@@ -58,6 +60,17 @@ public class UserService {
             return user;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    //METHOD TO UPDATE PROFILE IMAGE
+    public void uploadImage(String username,String imageUrl) {
+        try{
+            User user = userRepository.findByUsername(username);
+            user.setImage(imageUrl);
+            userRepository.save(user);
+        }catch (Exception e){
+            throw new IllegalArgumentException("Internal Server Error");
         }
     }
 

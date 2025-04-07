@@ -87,6 +87,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+<!--		//AWS-->
+		<!-- AWS SDK -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.12.529</version>
+		</dependency>
 
 	</dependencies>
 

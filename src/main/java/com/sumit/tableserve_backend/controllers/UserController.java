@@ -1,15 +1,19 @@
 package com.sumit.tableserve_backend.controllers;
 
 import com.sumit.tableserve_backend.entities.User;
+import com.sumit.tableserve_backend.models.ApiResponseModel;
+import com.sumit.tableserve_backend.sevices.AWSFileUploadService;
+import com.sumit.tableserve_backend.sevices.FileStorageService;
 import com.sumit.tableserve_backend.sevices.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -18,6 +22,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private FileStorageService fileStorageService;
+    @Autowired
+    private AWSFileUploadService awsFileUploadService;
 
     @GetMapping
     public ResponseEntity<?> getMyProfile(Authentication authentication) {
@@ -31,5 +39,18 @@ public class UserController {
            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PutMapping("/update/image")
+    public ResponseEntity<?> updateUserImage(@RequestParam("image") MultipartFile file, Authentication authentication) {
+        try{
+            String filePath = awsFileUploadService.uploadFile(file);
+            String username = authentication.getName();
+            userService.uploadImage(username, filePath);
+            return new ResponseEntity<>(new ApiResponseModel(filePath, "Profile Changed Success", 204, true), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponseModel(null, e.getMessage(), 500, false), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
 

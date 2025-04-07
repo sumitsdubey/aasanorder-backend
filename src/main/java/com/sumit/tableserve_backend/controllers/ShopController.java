@@ -4,12 +4,14 @@ package com.sumit.tableserve_backend.controllers;
 import com.sumit.tableserve_backend.dto.ShopRequest;
 import com.sumit.tableserve_backend.entities.Shop;
 import com.sumit.tableserve_backend.models.ApiResponseModel;
+import com.sumit.tableserve_backend.sevices.AWSFileUploadService;
 import com.sumit.tableserve_backend.sevices.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.stream.Stream;
 
@@ -20,9 +22,12 @@ public class ShopController {
     @Autowired
     private ShopService shopService;
 
+    @Autowired
+    private AWSFileUploadService awsFileUploadService;
+
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody ShopRequest requestShop, Authentication auth) {
+    public ResponseEntity<?> create(@ModelAttribute ShopRequest requestShop, Authentication auth) {
         String username = auth.getName();
         boolean hasBlank = Stream.of(
                         requestShop.getShopName(),
@@ -36,7 +41,11 @@ public class ShopController {
         if(hasBlank) {
             return new ResponseEntity<>(new ApiResponseModel(null, "All Feilds are Required", 401, false), HttpStatus.BAD_REQUEST);
         }
-        Shop shop = shopService.createShop(requestShop, username);
+        String fileUrl="";
+        if(requestShop.getImage()!=null){
+            fileUrl  = awsFileUploadService.uploadFile(requestShop.getImage());
+        }
+        Shop shop = shopService.createShop(requestShop, username, fileUrl);
         if(shop != null) {
             return new ResponseEntity<>(new ApiResponseModel(shop, "Shop created successfully", 201, true), HttpStatus.CREATED);
         }

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -47,9 +48,9 @@ public class ItemService {
         try{
             Shop shop = shopService.getShop(username);
             if(shop!=null) {
-                List<Item> items = shop.getItems();
+                return shop.getItems();
             }
-            return null;
+            return Collections.emptyList();
         }
         catch(Exception e){
             throw new RuntimeException(e);

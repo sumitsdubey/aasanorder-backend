@@ -2,6 +2,7 @@ package com.sumit.tableserve_backend.dto;
 
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ShopRequest {
@@ -18,7 +19,7 @@ public class ShopRequest {
 
     private String email;
 
-    private String image;
+    private MultipartFile image;
 
     private String description;
 

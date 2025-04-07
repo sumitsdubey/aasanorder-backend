@@ -19,7 +19,8 @@ public class Item {
     private String price;
     private String quantity;
     private String category;
+    private String subCategory;
     private String image;
     private Availability availability;
-
+    private String special;
 }
