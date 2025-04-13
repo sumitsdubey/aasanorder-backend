@@ -1,6 +1,8 @@
 package com.sumit.tableserve_backend.controllers;
 
 
+import com.sumit.tableserve_backend.dto.IdsRequest;
+import com.sumit.tableserve_backend.dto.ItemRequest;
 import com.sumit.tableserve_backend.entities.Item;
 import com.sumit.tableserve_backend.models.ApiResponseModel;
 import com.sumit.tableserve_backend.sevices.ItemService;
@@ -10,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/item")
 public class ItemController {
@@ -18,7 +23,7 @@ public class ItemController {
     private ItemService itemService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> createItem(@RequestBody Item newItem, Authentication auth) {
+    public ResponseEntity<?> createItem(@ModelAttribute ItemRequest newItem, Authentication auth) {
         try{
             String username = auth.getName();
             Item saved = itemService.save(newItem, username);
@@ -52,6 +57,21 @@ public class ItemController {
             }
             return new ResponseEntity<>(new ApiResponseModel(null, "Item Not Found", 404, false), HttpStatus.BAD_REQUEST);
         }catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponseModel(null, "Item Not Found", 500, false), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //GETTING ALL ITEMS BY ITEMS ID
+    @PostMapping("/find-all")
+    public ResponseEntity<?> getAllItems(@RequestBody IdsRequest itemIds) {
+        try{
+            List<Item> allItemsById = itemService.getAllItemsById(itemIds.getIds());
+            if(allItemsById != null) {
+                return new ResponseEntity<>(new ApiResponseModel(allItemsById, "Item Found", 200, true), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(new ApiResponseModel(null, "Item Not Found", 404, false), HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e) {
             return new ResponseEntity<>(new ApiResponseModel(null, "Item Not Found", 500, false), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

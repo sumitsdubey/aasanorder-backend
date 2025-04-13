@@ -1,5 +1,6 @@
 package com.sumit.tableserve_backend.sevices;
 
+import com.sumit.tableserve_backend.dto.ItemRequest;
 import com.sumit.tableserve_backend.entities.Item;
 import com.sumit.tableserve_backend.entities.Shop;
 import com.sumit.tableserve_backend.repositories.ItemRepository;
@@ -22,14 +23,30 @@ public class ItemService {
     @Autowired
     private ShopService shopService;
 
-    @Autowired    private MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private AWSFileUploadService awsFileUploadService;
 
     // METHOD FOR CREATE NEW ITEM
-    public Item save(Item item,String username) {
+    public Item save(ItemRequest item, String username) {
         try{
             Shop shop = shopService.getShop(username);
             if(shop!=null) {
-                Item savedItem = itemRepository.save(item);
+                String imageUrl = awsFileUploadService.uploadFile(item.getImage());
+                Item newItem = new Item().builder()
+                        .itemName(item.getItemName())
+                        .itemDescription(item.getItemDescription())
+                        .price(item.getPrice())
+                        .quantity(item.getQuantity())
+                        .category(item.getCategory())
+                        .subCategory(item.getSubCategory())
+                        .image(imageUrl)
+                        .availability(item.getAvailability())
+                        .special(item.isSpecial())
+                        .build();
+                Item savedItem = itemRepository.save(newItem);
                 shop.getItems().add(savedItem);
                 shopService.updateShopByCol("items", shop.getItems(), username);
                 return savedItem;
@@ -62,6 +79,15 @@ public class ItemService {
         try{
             return  itemRepository.findByItemId(id);
         } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    //FIND ALL ITEMS BY ID
+    public List<Item> getAllItemsById(List<String> ids) {
+        try{
+            return itemRepository.findByItemIdIn(ids);
+        }
+        catch(Exception e){
             throw new RuntimeException(e);
         }
     }
